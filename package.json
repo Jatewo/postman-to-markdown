@@ -1,8 +1,9 @@
 {
-  "name": "postman-to-markdown",
+  "name": "@jatewo/postman-to-markdown",
   "version": "1.0.0",
   "description": "Convert Postman Collection API JSON to markdown",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
