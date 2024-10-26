@@ -48,7 +48,7 @@ function handleRequests(requests) {
 	requests.forEach((request) => {
 		markdown += '<details open>\n';
 		markdown += `<summary style="font-size: 1.675rem; font-weight: 500;"> ${methods[request.request.method]} ${request.name}</summary>\n\n`;
-		markdown += `\`\`\`http\nhttp://localhost:${process.env.PORT}/${request.request.url.path.join('/')}\n\`\`\`\n`;
+		markdown += `\`\`\`\nhttp://localhost:${process.env.PORT}/${request.request.url.path.join('/')}\n\`\`\`\n`;
 		if (request.request.description) {
 			markdown += `\n${request.request.description}\n\n`;
 			markdown += span(-10);
