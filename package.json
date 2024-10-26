@@ -1,0 +1,22 @@
+{
+  "name": "postman-to-markdown",
+  "version": "1.0.0",
+  "description": "Convert Postman Collection API JSON to markdown",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Jatewo/postman-to-markdown.git"
+  },
+  "author": "Jacob Terpe Woods",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/Jatewo/postman-to-markdown/issues"
+  },
+  "homepage": "https://github.com/Jatewo/postman-to-markdown#readme",
+  "dependencies": {
+    "axios": "^1.7.7"
+  }
+}
