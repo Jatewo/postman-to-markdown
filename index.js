@@ -7,5 +7,6 @@ export default async function postmanToMarkdown(url, path) {
 	const postmanRes = await getPostmanCollection(url);
 	const markdown = generateDocs(postmanRes);
 
-	fs.writeFileSync(path, markdown);
+	fs.writeFileSync(path.replace('.md', '') + '_LOCAL.md', generateDocs(postmanRes, 'local'));
+	fs.writeFileSync(path.replace('.md', '') + '_GITHUB.md', generateDocs(postmanRes, 'github'));
 }

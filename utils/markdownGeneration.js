@@ -6,20 +6,30 @@ const methods = {
 	PATCH: '<span style="color: magenta; background:rgb(50,50,50); border-radius: 5px; padding: 2px 5px">PATCH</span>',
 };
 
+const methodColors = {
+	POST: 'orange',
+	GET: 'green',
+	PUT: 'blue',
+	DELETE: 'red',
+	PATCH: 'magenta',
+}
+
 /**
  * Generate markdown documentation from Postman API response
  * @param {PostmanAPIResponse} postmanRes The Postman API response
+ * @param {String} target The target environment for the documentation (default: local, options: local, github) 
  * @returns {String} The generated markdown documentation String
  */
-function generateDocs(postmanRes) {
+function generateDocs(postmanRes, target='local') {
 
-	let markdown = `<span style="font-size: 2.4rem; font-weight: 500"> ${postmanRes.collection.info.name}</span>\n--\n`;
+	let markdown = target === 'local' ? `<span style="font-size: 2.4rem; font-weight: 500"> ${postmanRes.collection.info.name}</span>\n--\n` 
+		: `# ${postmanRes.collection.info.name}\n\n`;
+
 	markdown += `${postmanRes.collection.info.description}\n\n`;
 	markdown += '---\n\n';
 
-	markdown += handleFolders(postmanRes.collection.item);
+	markdown += handleFolders(postmanRes.collection.item, target);
 
-	markdown.replace(/{{base_url}}/g, '{{base_usrl}}');
 	return markdown;
 }
 
@@ -28,14 +38,15 @@ function generateDocs(postmanRes) {
  * @param {} folders 
  * @returns 
  */
-function handleFolders(folders) {
+function handleFolders(folders, target) {
 	let markdown = '';
 	folders.forEach((folder) => {
 		markdown += '<details open>\n';
-		markdown += `<summary style="font-size: 2.125rem; font-weight: 500">${folder.name}</summary>\n\n`;
+		markdown += target === 'local' ? `<summary style="font-size: 2.125rem; font-weight: 500">${folder.name}</summary>\n\n` 
+			: `<summary>${huge(folder.name)}</summary>\n\n`;
 		markdown += `${folder.description}\n\n`;
 
-		markdown += handleRequests(folder.item);
+		markdown += handleRequests(folder.item, target);
 		markdown += '</details>\n\n';
 		markdown += '---\n\n';
 	});
@@ -43,47 +54,71 @@ function handleFolders(folders) {
 	return markdown;
 }
 
-function handleRequests(requests) {
+/**
+ * 
+ * @param {Array<PostmanRequest>} requests 
+ * @param {*} target 
+ * @returns 
+ */
+function handleRequests(requests, target) {
 	let markdown = '';
 	requests.forEach((request) => {
-		markdown += '<details open>\n';
-		markdown += `<summary style="font-size: 1.675rem; font-weight: 500;"> ${methods[request.request.method]} ${request.name}</summary>\n\n`;
-		markdown += `\`\`\`\nhttp://localhost:${process.env.PORT}/${request.request.url.path.join('/')}\n\`\`\`\n`;
+		const reqTitle = target === 'local' ? `<span style="font-size: 1.675rem; font-weight: 500;"> ${methods[request.request.method]} ${request.name}</span>\n\n`
+			: `${badge(request.request.method, null, methodColors[request.request.method])} ${huge(request.name)}\n`;
+		markdown += reqTitle;
+		markdown += `> \`\`\`\n> http://localhost:${process.env.PORT}/${request.request.url.path.join('/')}\n> \`\`\`\n> `;
 		if (request.request.description) {
-			markdown += `\n${request.request.description}\n\n`;
-			markdown += span(-10);
+			markdown += `\n> ${request.request.description.split('\n').join('\n> ')}\n>\n`;
+			if (target === 'local') markdown += span(-10);
 		}
 
 		if (request.response.length)
-			markdown += handleResponses(request.response);
+			markdown += handleResponses(request.response, target);
 
-		markdown += span(30);
-		markdown += '</details>\n\n';
+		markdown += '>' + span(30);
 	});
 
 	return markdown;
 }
 
-function handleResponses(responses) {
-	let markdown = '## Example Responses\n\n';
-	markdown += span(-10);
+function handleResponses(responses, target) {
+	let markdown = '> ### Example Responses\n>\n';
+	if (target === 'local') markdown += span(-10);
 	responses.forEach((response) => {
 		if (response.code) {
-			markdown += `<span style="font-size: 1.4rem"><span style="color: 
-			${response.code >= 200 && response.code < 300 ? 'green' : 'red'}; 
-			background:rgb(50,50,50); border-radius: 5px; padding: 2px 3px">
-			${response.code}</span> ${response.name}:</span>\n\n`;
-			markdown += span(-12);
+			markdown += '>' + handleErrCode(response.code, response.name, target) + '\n>\n';
 		}
-		markdown += `\`\`\`json\n${response.body}\n\`\`\`\n\n`;
+		markdown += `> \`\`\`json\n> ${response.body?.split('\n').join('\n> ')}\n> \`\`\`\n> \n`;
 	});
 
 	markdown += span(30);
 	return markdown;
 }
 
+function handleErrCode(code, name, target) {
+	console.log(name.split(' ').join('-'));
+	if (target === 'local') {
+		return `<span style="color: ${code >= 200 && code < 300 ? 'green' : 'red'}; 
+		background:rgb(50,50,50); border-radius: 5px; padding: 2px 3px">${code}</span>`;
+	} else {
+		return badge(code, name, code >= 200 && code < 300 ? 'green' : 'red', 30);
+	}
+}
+
 function span(size) {
 	return `<div style="margin-top: ${size}px"></div>\n\n`;
+}
+
+function huge(text) {
+	return `$\\huge{\\texttt{${text}}}$`;
+}
+
+function large(text) {
+	return `$\\large{\\texttt{${text}}}$`;
+}
+
+function badge(label, message, color, size=null) {
+	return `<img src="https://img.shields.io/badge/${label}${message ? '-' + message.split(' ').join('_') : ''}-${color}.svg" ${size ? 'height="' + size + '"' : ''}>`;
 }
 
 export { generateDocs };
