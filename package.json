@@ -1,6 +1,6 @@
 {
   "name": "@jatewo/postman-to-markdown",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Convert Postman Collection API JSON to markdown",
   "main": "index.js",
   "type": "module",

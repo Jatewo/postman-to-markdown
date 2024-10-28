@@ -82,7 +82,11 @@ function handleRequests(requests, target) {
 }
 
 function handleResponses(responses, target) {
-	let markdown = '> ### Example Responses\n>\n';
+	let markdown = '';
+	if (target === 'github') {
+		markdown += '> '
+	}
+	markdown += '### Example Responses\n>\n';
 	if (target === 'local') markdown += span(-10);
 	responses.forEach((response) => {
 		if (response.code) {
@@ -111,10 +115,6 @@ function span(size) {
 
 function huge(text) {
 	return `$\\huge{\\texttt{${text}}}$`;
-}
-
-function large(text) {
-	return `$\\large{\\texttt{${text}}}$`;
 }
 
 function badge(label, message, color, size=null) {
